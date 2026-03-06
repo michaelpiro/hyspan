@@ -4,7 +4,7 @@ import scipy.io as sio
 import numpy as np
 import torch
 
-from Tools import standard
+from .Tools import standard
 from src.hyspan.deep_models.ts_generation import ts_generation
 
 

@@ -1,13 +1,13 @@
 from typing import Dict
 import torch
-from Data import Data
+from .Data import Data
 from torch.utils.data import DataLoader
 import torch.optim as optim
 from tqdm import tqdm
-from Scheduler import GradualWarmupScheduler
-from Model import SpectralGroupAttention
+from .Scheduler import GradualWarmupScheduler
+from .Model import SpectralGroupAttention
 import os
-from Tools import checkFile, standard
+from .Tools import checkFile, standard
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy.io as sio
