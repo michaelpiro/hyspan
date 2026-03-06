@@ -1,6 +1,6 @@
 # Execution State
-state: "train"  # train, eval, or select_best
-device: "cpu"
+state: "eval"  # train, eval, or select_best
+device: "cuda:0"
 seed: 1
 
 # Dataset Configuration

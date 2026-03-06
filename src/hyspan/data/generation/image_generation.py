@@ -172,7 +172,7 @@ if __name__ == '__main__':
     # usage example
     dataset_name = "abu-airport-2.mat"
     dataset_path = os.path.join("/datasets", dataset_name)
-    save_directory = os.path.join("/Users/mac/Desktop/school/MSC/LAB/hyspan_lib/synthetic_example", dataset_name)
+    save_directory = os.path.join("", dataset_name)
     generate_synthetic_hsi_image_from_binary(dataset_path, save_directory,
                                              h=128, w=128, seed=42,
                                              num_bkg_components=10, num_target_components=1,
