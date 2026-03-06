@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hyspan"
+version = "0.1.0"
+description = "Deep learning models for hyperspectral image analysis"
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+    "numpy~=1.23.4",
+    "torch~=2.1.2",
+    "scikit-image~=0.19.3",
+    "matplotlib~=3.6.1",
+    "scipy~=1.9.3",
+    "scikit-learn~=1.3.2",
+    "PyYAML~=6.0.1",
+    "einops~=0.7.0",
+    "tqdm~=4.65.0"
+]
+
+[[project.authors]]
+name = "Michael Pirogovsky"
+
+# This is the crucial part for your directory structure
+[tool.setuptools.packages.find]
+where = ["src"]
