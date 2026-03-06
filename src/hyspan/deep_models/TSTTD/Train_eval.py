@@ -15,7 +15,7 @@ import scipy.io as sio
 from sklearn import metrics
 import random
 
-from src.hyspan.deep_models.ts_generation import ts_generation
+from ..ts_generation import ts_generation
 
 
 def seed_torch(seed=1):
