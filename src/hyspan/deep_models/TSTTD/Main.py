@@ -1,5 +1,5 @@
 import yaml
-from Train_eval import train, eval_model, select_best
+from .Train_eval import train, eval_model, select_best
 
 def main(config_path="config.yaml"):
     with open(config_path, 'r') as file:

@@ -2,10 +2,10 @@ from typing import Union, Sequence, Dict, Any, Optional
 import numpy as np
 import torch
 from scipy.io import savemat, loadmat
-from distribution_estimation import binary_data_estimation_using_gmm, multiclass_data_estimation_using_gmm, \
+from .distribution_estimation import binary_data_estimation_using_gmm, multiclass_data_estimation_using_gmm, \
     multiclass_data_estimation_using_labels
-from data_generator import DataGeneratorModel
-from utils import add_targets_to_image, ts_generation
+from .data_generator import DataGeneratorModel
+from .utils import add_targets_to_image, ts_generation
 import os
 
 DATA_SUFFIX = "synthetic_dataset.mat"
