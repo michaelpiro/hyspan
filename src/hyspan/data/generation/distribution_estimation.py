@@ -4,7 +4,7 @@ import torch
 from scipy.io import loadmat
 from sklearn.mixture import GaussianMixture
 
-from src.hyspan.data.generation.data_generator import BaseComponent, GaussianComponent, StudentTComponent, \
+from .data_generator import BaseComponent, GaussianComponent, StudentTComponent, \
     UniformComponent, DataGeneratorModel
 GAUSSIAN_COMP = "gaussian"
 COV_TYPE = "full"

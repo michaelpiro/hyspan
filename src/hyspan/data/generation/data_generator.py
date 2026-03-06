@@ -16,7 +16,7 @@ from scipy.stats import multivariate_t
 
 from typing import Union
 # from image_utils import generate_spatial_comp_map, generate_lmm_weights
-from src.hyspan.data.generation.image_utils import generate_spatial_comp_map, generate_lmm_weights
+from .image_utils import generate_spatial_comp_map, generate_lmm_weights
 from .utils import get_gaussian_kernel
 import sys
 

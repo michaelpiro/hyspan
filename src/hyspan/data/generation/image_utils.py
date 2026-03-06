@@ -9,7 +9,7 @@ from skimage.util import view_as_windows
 
 import matplotlib.pyplot as plt
 
-from src.hyspan.data.generation.utils import get_gaussian_kernel
+from .utils import get_gaussian_kernel
 
 
 def generate_spatial_comp_map(
