@@ -5,7 +5,7 @@ import numpy as np
 from scipy.ndimage import convolve
 from torch.nn import functional as F
 
-from src.algorithms.classic import glrt
+from src.hyspan.algorithms.classic import glrt
 from src.hyspan.deep_models import GMM
 
 
