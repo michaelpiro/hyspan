@@ -4,7 +4,7 @@ import torch
 from torch import Tensor
 from torch.nn import functional as F
 
-from src.hyspan.algorithms.classic import glrt
+from src.algorithms.classic import glrt
 from src.hyspan.algorithms.utils import ts_generation
 
 
