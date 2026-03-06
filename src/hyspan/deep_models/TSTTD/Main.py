@@ -32,7 +32,7 @@ config_dictionary = {
     "training":
     # Hyperparameters
         {
-            "epochs": 20,
+            "epoch": 20,
             "batch_size": 64,
             "lr": 1.0e-4,
             "multiplier": 2,
