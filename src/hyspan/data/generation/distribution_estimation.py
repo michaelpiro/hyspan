@@ -1,8 +1,6 @@
 from typing import Union, Sequence, Dict, Any, Optional
 import numpy as np
 import torch
-from scipy.io import loadmat
-from sklearn.mixture import GaussianMixture
 
 from .data_generator import BaseComponent, GaussianComponent, StudentTComponent, \
     UniformComponent, DataGeneratorModel
@@ -177,8 +175,14 @@ def build_data_model_from_stats(
     device = torch.device(device)
 
     # ---- convert means and covs to torch ----
-    means_t = torch.as_tensor(means, dtype=dtype, device=device)
-    covs_t = torch.as_tensor(covs, dtype=dtype, device=device)
+    # Use torch.tensor() (not as_tensor/from_numpy) to avoid the numpy C bridge
+    def _to_t(x):
+        if isinstance(x, torch.Tensor):
+            return x.to(dtype=dtype, device=device)
+        return torch.tensor(np.asarray(x).tolist(), dtype=dtype, device=device)
+
+    means_t = _to_t(means)
+    covs_t = _to_t(covs)
 
     if means_t.ndim != 2:
         raise ValueError(f"means must have shape (K, D), got {means_t.shape}")
@@ -193,7 +197,7 @@ def build_data_model_from_stats(
     if weights is None:
         weights_t = torch.full((K,), 1.0 / K, dtype=dtype, device=device)
     else:
-        weights_t = torch.as_tensor(weights, dtype=dtype, device=device)
+        weights_t = _to_t(weights)
         if weights_t.shape != (K,):
             raise ValueError(f"weights must have shape (K,), got {weights_t.shape}")
         weights_t = weights_t / weights_t.sum()
@@ -309,9 +313,10 @@ def create_generator_from_stats(comp_types, stats):
                                                  df_default=DF_DEFAULT)
     return data_generator, ratios, means, covs
 
-
+#TODO: ADD THE USAGE OF THE NEW TORCHGMM CLASS
 def estimate_dist_gmm(image: np.ndarray, num_components: int, cov_type: str = COV_TYPE, n_init: int = 1,
-                      max_iter: int = 100, tol=1e-3) -> GaussianMixture:
+                      max_iter: int = 100, tol=1e-3):
+    from sklearn.mixture import GaussianMixture  # lazy import — sklearn may not be available
     bkg_samples = image.reshape(-1, image.shape[-1])
     gmm = GaussianMixture(n_components=num_components, covariance_type=cov_type, random_state=0, n_init=n_init,
                           tol=tol,
@@ -321,7 +326,7 @@ def estimate_dist_gmm(image: np.ndarray, num_components: int, cov_type: str = CO
     return gmm
 
 
-def build_data_model_from_gmm(gmm: GaussianMixture,
+def build_data_model_from_gmm(gmm,
                               comp_dist: Optional[Union[str, Sequence[Optional[str]]]] = GAUSSIAN_COMP,
                               df_default: int = DF_DEFAULT) -> DataGeneratorModel:
     means = gmm.means_

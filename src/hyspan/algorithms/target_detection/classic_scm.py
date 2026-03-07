@@ -4,8 +4,8 @@ import torch
 from torch import Tensor
 from torch.nn import functional as F
 
-from src.hyspan.algorithms.classic import glrt
-from src.hyspan.algorithms.utils import ts_generation
+from ..classic import glrt
+from ..utils import ts_generation
 
 
 class ClassicDetectorSCM:
@@ -114,7 +114,8 @@ def get_local_mean_inv_cov(image: torch.Tensor, kernel_size: int = 7, eps: float
     centered = patches - mean.unsqueeze(1)  # (HW, k*k, D)
 
     # Empirical covariance per pixel: (HW, D, D)
-    cov = torch.bmm(centered.transpose(1, 2), centered) / max(1, (kernel_size ** 2 - 1))
+    n_samples = patches.shape[1]  # actual count after any central-pixel removal
+    cov = torch.bmm(centered.transpose(1, 2), centered) / max(1, n_samples - 1)
     # Regularize and invert via Cholesky for stability
     eye = torch.eye(D, device=image.device, dtype=image.dtype).unsqueeze(0).expand_as(cov)
     cov = (cov + cov.transpose(1, 2)) * 0.5 + eps * eye
@@ -166,7 +167,7 @@ def get_scm_score_loop(image: torch.Tensor, target: torch.Tensor, kernel_size: i
 
             mu = patch.mean(dim=0, keepdim=True)  # (1,D)
             centered = patch - mu
-            cov = centered.t() @ centered / (kernel_size ** 2 - 1)  # (D,D)
+            cov = centered.t() @ centered / max(1, patch.shape[0] - 1)  # (D,D)
             cov = (cov + cov.t()) * 0.5 + eps * torch.eye(D, device=image.device, dtype=image.dtype)
             L = torch.linalg.cholesky(cov)
             inv_cov = torch.cholesky_inverse(L)
@@ -251,10 +252,15 @@ def ACE_SCM_algorithm(image: torch.Tensor, target: torch.Tensor, kernel_size: in
 @torch.no_grad()
 def kellys_SCM_algorithm(image: torch.Tensor, target: torch.Tensor, kernel_size: int = 7, remove_central=True,
                          remove_neighbors_size=0, eps: float = 1e-8):
-    H, W, D = image.shape
-    N = H * W
-    return glrt_scm_algorithm(image, target, phi1=N, phi2=1, kernel_size=kernel_size, remove_central=remove_central,
-                              remove_neighbor_size=remove_neighbors_size, eps=eps)
+    # phi1 = N = number of secondary (background) training samples in the window
+    if remove_central:
+        s = 2 * remove_neighbors_size + 1
+        n_secondary = kernel_size ** 2 - s * s
+    else:
+        n_secondary = kernel_size ** 2
+    n_secondary = max(1, n_secondary)
+    return glrt_scm_algorithm(image, target, phi1=n_secondary, phi2=1, kernel_size=kernel_size,
+                              remove_central=remove_central, remove_neighbor_size=remove_neighbors_size, eps=eps)
 
 
 # TODO: ADD TESTS TO THE MODULE

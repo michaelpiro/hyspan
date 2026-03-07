@@ -5,10 +5,10 @@ import numpy as np
 from scipy.ndimage import convolve
 from torch.nn import functional as F
 
-from src.hyspan.algorithms.classic import glrt
-from src.hyspan.deep_models import GMM
+from ..classic import glrt
+from ...deep_models import GMM
 
-
+# TODO: ADD THE USE OF THE TORCHGMM NEW CLASS
 class ClassicDetectorGMM:
     def __init__(self, target_signature: torch.Tensor, gmm: GMM, neighbors: int = 9, remove_pxl_undr_tst=True,
                  remove_neighbors=2):
@@ -20,6 +20,10 @@ class ClassicDetectorGMM:
         self.remove_pxl_undr_tst = remove_pxl_undr_tst
 
     @torch.no_grad()
+    def set_target(self, target_signature: torch.Tensor):
+        self.target_signature = target_signature
+
+    @torch.no_grad()
     def get_patches_votes(self, image: torch.Tensor, kernel_size=None, neighborhood_size=None,
                           remove_central_pixel=None,
                           memory_efficient: bool = False) -> torch.Tensor:
@@ -28,18 +32,16 @@ class ClassicDetectorGMM:
         neighborhood_size = neighborhood_size if neighborhood_size is not None else self.remove_neighbors
         remove_central_pixel = remove_central_pixel if remove_central_pixel is not None else self.remove_pxl_undr_tst
 
-        np_image = image.cpu().numpy()
-        orig_shape = np_image.shape
-        if np_image.ndim == 2:
-            samples = np_image  # (W,D) or (H,D)
-
-        elif np_image.ndim == 3:
-            H, W, D = np_image.shape
-            samples = np_image.reshape(-1, D)  # (H*W, D)
+        # Pass torch tensor directly; predict() handles the conversion internally
+        orig_shape = tuple(image.shape)
+        if image.ndim == 3:
+            samples = image.reshape(-1, image.shape[-1])  # (H*W, D) torch tensor
+        elif image.ndim == 2:
+            samples = image  # (N, D) torch tensor
         else:
-            raise ValueError(f"Unsupported image shape: {np_image.shape}")
-        comps = self.gmm.predict(samples)
-        comp_map = comps.reshape(orig_shape[:-1])  # (H,W) or (W,)
+            raise ValueError(f"Unsupported image shape: {image.shape}")
+        comps = self.gmm.predict(samples)              # numpy (H*W,) or (N,)
+        comp_map = comps.reshape(orig_shape[:-1])      # (H,W) or (N,) numpy
 
         if memory_efficient:
             patches_votes = majority_vote_loop(comp_map, kernel_size=kernel_size, neighborhood_size=neighborhood_size,
@@ -48,7 +50,7 @@ class ClassicDetectorGMM:
             patches_votes = majority_vote_filter(comp_map, kernel_size=kernel_size, neighborhood_size=neighborhood_size,
                                                  remove_central_pixel=remove_central_pixel)
 
-        return torch.from_numpy(patches_votes).long().to(image.device)
+        return torch.tensor(patches_votes.tolist(), dtype=torch.long).to(image.device)
 
     @torch.no_grad()
     def CEM(self, image: torch.Tensor, kernel_size=None, remove_central_pixel=None, neighborhood_size=None,
