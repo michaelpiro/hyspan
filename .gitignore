@@ -1,0 +1,35 @@
+# 1. Datasets and Data Files
+# We definitely don't want to upload heavy matrices
+*.mat
+*.h5
+*.npy
+
+# 2. Model Checkpoints
+# Ignore your saved PyTorch weights and the Checkpoint folder entirely
+Checkpoint/
+*.pt
+*.pth
+
+# 3. Python Cache and Environments
+__pycache__/
+*.py[cod]
+*egg-info/
+venv/
+env/
+
+# 4. PyCharm/IDE Settings
+.idea/
+
+# 5. macOS
+.DS_Store
+
+# 6. Experiment outputs (plots, saved results)
+*_results/
+*_plots/
+results/
+
+# 7. Jupyter
+.ipynb_checkpoints/
+
+# 8. Papers (local PDFs, not tracked)
+papers/
