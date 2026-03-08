@@ -114,7 +114,7 @@ def local_whiten_image(
     x_flat    = image.reshape(H * W, D, 1)                  # (N, D, 1)
     x_whitened = torch.bmm(R_inv_sqrt, x_flat).squeeze(-1)  # (N, D)
 
-    return x_whitened.reshape(H, W, D)
+    return x_whitened.cpu().reshape(H, W, D)
 
 
 # ── GMM-based local whitening ─────────────────────────────────────────────

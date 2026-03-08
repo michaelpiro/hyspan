@@ -52,7 +52,10 @@ def train_vae_ood(
     optim   = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=weight_decay)
     sched   = torch.optim.lr_scheduler.CosineAnnealingLR(optim, T_max=epochs, eta_min=lr * 0.01)
 
-    dataset = TensorDataset(bg_pixels.float())
+    # Always keep the dataset on CPU — DataLoader handles transfer to device.
+    # bg_pixels may arrive on GPU (e.g. output of local_whiten_image with device='cuda'),
+    # and pin_memory only works on CPU tensors, so we force .cpu() here.
+    dataset = TensorDataset(bg_pixels.float().cpu())
     loader  = DataLoader(
         dataset,
         batch_size=batch_size,
